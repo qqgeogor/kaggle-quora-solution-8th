@@ -73,3 +73,14 @@ pypy generate_distinct_entropy.py
 python generate_keyword_subgraph.py
 python generate_keyword_clique.py
 
+
+python mf_dense_3_classification.py
+python mf_dense_classification.py
+python mf_dense_random.py
+python mf_dense_regression.py
+python mf_dense_weighted_classification.py
+
+python mf_lstm_att_siamese.py
+python mf_lstm_classification.py
+python mf_lstm_end2end.py
+python mf_tfidf_classification.py
