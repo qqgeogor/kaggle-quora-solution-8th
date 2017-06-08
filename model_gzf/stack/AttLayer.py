@@ -4,6 +4,7 @@ from keras.engine.topology import Layer
 # from keras import initializations
 from keras import initializers, regularizers, constraints
 
+__author__=['shaohan']
 
 class Attention(Layer):
     def __init__(self, step_dim,
