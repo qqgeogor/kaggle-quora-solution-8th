@@ -47,12 +47,7 @@ def batch_generator(q1,q2,y,batch_size=128,shuffle=True,maxlen=238):
 
             X_batch = [X_batch_1,X_batch_2]
             y_batch = y[batch_ids]
-            # y_batch = [y_batch,y_batch]
             yield X_batch,y_batch
-            
-            # y_batch = y[batch_ids].reshape(-1,1)
-            # X_batch.append(y_batch)
-            # yield X_batch,np.zeros(y_batch.shape[0])
 
 
 def test_batch_generator(q1,q2,y,batch_size=128,maxlen=238):
@@ -65,7 +60,7 @@ def test_batch_generator(q1,q2,y,batch_size=128,maxlen=238):
         X_batch_2 = pad_sequences(q2[batch_ids],padding='pre',maxlen=maxlen)
         X_batch = [X_batch_1,X_batch_2]
         y_batch = np.zeros(X_batch_1.shape[0]).reshape(-1,1)
-        # X_batch.append(y_batch)
+
         yield X_batch,y_batch
 
 
@@ -100,24 +95,14 @@ def build_model(maxlen=238,n=1e5,dim=128,hidden=512):
     inputs_q2 = Input(shape=(maxlen,),name='input_q2')
     inputs.append(inputs_q2)
 
-    # inputs_y = Input(shape=(1,),name='input_y')
-    # inputs.append(inputs_y)
 
     shared_emb1 = Embedding(
                 n,
                 dim,
                 input_length=maxlen,
                 )
-    # conv1 = Convolution1D(256, 5, border_mode='same',activation='relu')
-    # pool1 = MaxPooling1D(pool_length=2)
 
-    # conv2 = Convolution1D(128, 3, border_mode='same',activation='relu')
-    # pool2 = MaxPooling1D(pool_length=2)
-
-    # conv3 = Convolution1D(64, 3, border_mode='same',activation='relu')
-    # pool3 = MaxPooling1D(pool_length=2)
     lstm1 = LSTM(256)
-    # lstm2 = LSTM(256)
 
 
     emb_q1 = shared_emb1(inputs_q1)
@@ -127,10 +112,6 @@ def build_model(maxlen=238,n=1e5,dim=128,hidden=512):
 
     latent_q1 = lstm1(emb_q1)
     latent_q2 = lstm1(emb_q2)
-    
-    # latent = Dense(128,activation='tanh')
-    # latent_q1 = latent(flatten_q1)
-    # latent_q2 = latent(flatten_q2)
 
     
     outputs_contrastive_loss = Lambda(euclidean_distance,output_shape=(1,),name='contrastive_loss')([
@@ -144,7 +125,6 @@ def build_model(maxlen=238,n=1e5,dim=128,hidden=512):
     fc = Dropout(0.5)(fc)
     output_logloss = Dense(1,activation='sigmoid',name='prediction_loss')(fc)
     
-    # outputs = [output_logloss,outputs_contrastive_loss,]
     outputs = [output_logloss]
     model = Model(input=inputs, output=outputs)
     
@@ -152,7 +132,6 @@ def build_model(maxlen=238,n=1e5,dim=128,hidden=512):
                 optimizer='nadam',
                 loss = {
                 'prediction_loss':'binary_crossentropy',
-                # 'contrastive_loss':contrastive_loss,s
                 }
               )
     
@@ -162,11 +141,7 @@ maxlen = 40
 n = 2**18
 q1 = data_all['question1'].apply(lambda x:one_hot(x,n=n, lower=True, split=" ")).values#.tolist()
 q2 = data_all['question2'].apply(lambda x:one_hot(x,n=n, lower=True, split=" ")).values#.tolist()
-# texts  = data_all['question1'].values.tolist()+data_all['question2'].values.tolist()
-# token = Tokenizer()
-# token.fit_on_texts(texts)
-# q1 = token.texts_to_sequences(data_all['question1'].values.tolist())
-# q2 = token.texts_to_sequences(data_all['question2'].values.tolist())
+
 print q1[:10]
 
 
@@ -176,15 +151,10 @@ X_t_q1 = q1[len_train:]
 X_q2 = q2[:len_train]
 X_t_q2 = q2[len_train:]
 
-# X_q1 = np.array(X_q1)
-# X_t_q1 = np.array(X_t_q1)
-# X_q2 = np.array(X_q2)
-# X_t_q2 = np.array(X_t_q2)
+
 
 y = pd.read_csv(path+"train.csv")['is_duplicate'].values
-# y[y==0]=-1
 
-# skf = KFold(n_splits=5, shuffle=True, random_state=seed).split(X_q1)
 X_mf = np.zeros(X_q1.shape[0])
 X_t_mf = np.zeros(X_t_q1.shape[0])
 
@@ -211,12 +181,10 @@ for ind_tr, ind_te in skf:
     te_gen = batch_generator(X_q1_test,X_q2_test,y_test,batch_size=batch_size,shuffle=False,maxlen=maxlen)
     model.fit_generator(
             tr_gen, 
-            # samples_per_epoch=X_q1_train.shape[0], 
             steps_per_epoch = int(X_q1_train.shape[0]/batch_size),
             nb_epoch=2, 
             verbose=1, 
-            validation_data=te_gen, 
-            # nb_val_samples=X_q1_test.shape[0], 
+            validation_data=te_gen,  
             validation_steps = int(X_q1_test.shape[0]/batch_size),
             max_q_size=10,
             callbacks = [model_checkpoint]

@@ -17,18 +17,6 @@ feats= ['question1_unigram','question2_unigram','question1_bigram','question2_bi
 X = []
 for f in feats:
     X.append(pd.read_pickle(path+'train_%s_tfidf.pkl'%f))
-    # X.append(pd.read_pickle(path+'train_%s_tfidf.pkl'%f))
-# X.append(np.loadtxt(path+'train_spacy_diff_pretrained.txt'))
-
-# feats2= [
-# 'question1',
-# 'question2',
-# 'question1_porter',
-# 'question2_porter',
-# ]
-# for f in feats2:
-#     X.append(pd.read_pickle(path+'train_%s_nmf.pkl'%f))
-#     X.append(pd.read_pickle(path+'train_%s_svd.pkl'%f))
 
 X = ssp.hstack(X).tocsr()
 len_train = X.shape[0]
@@ -73,7 +61,6 @@ train_spacy_sim_pretrained = pd.read_csv(path+'train_spacy_sim_pretrained.csv')[
 print weight.shape
 train_pattern = pd.read_pickle(path+'train.pattern.pkl').reshape((X.shape[0],3))
 print train_pattern.shape
-# train_tfidf_sim = pd.read_pickle(path+'train_tfidf_sim.pkl').reshape(-1,1)
 
 train_hashed_pr = pd.read_csv(path+'train_hashed_pr.csv').values[:,0].reshape(-1,1)
 pr = pd.read_pickle(path+'page_rank.pkl')
