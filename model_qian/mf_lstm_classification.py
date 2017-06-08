@@ -32,18 +32,13 @@ len_train = train.shape[0]
 
 data_all = pd.concat([train,test])
 
-# w2vmodel = Word2Vec.load(path+'my_w2v.mdl')
-
-# w2vmodel = Word2Vec.load_word2vec_format(path+'GoogleNews-vectors-negative300.bin', binary=True)  # C binary format
 
 def read_emb(path):
     count=0
     f = open(path,'r')
     emb_dict = dict()
     for line in f:
-        # if count==0:
-        #     count+=1
-        #     continue
+
         line = line.strip().split(' ')
         id = line[0]
         
@@ -52,7 +47,6 @@ def read_emb(path):
         count+=1
         emb_dict[id] = weights
     return emb_dict
-# data_all = pd.concat([train,test])
 
 trmodel = Word2Vec.load_word2vec_format(path+'GoogleNews-vectors-negative300.bin', binary=True)  # C binary format
 w2vmodel = read_emb(path+'glove.840B.300d.txt')
@@ -70,7 +64,6 @@ def my_padding(X,maxlen,dim=300):
     if len(X)>=maxlen:
         X = X[-maxlen:]
     else:
-        # X = [np.random.uniform(size=dim)]*(maxlen-len(X))+X
         X = [np.zeros(dim)]*(maxlen-len(X))+X
     return X
 
@@ -98,10 +91,10 @@ def batch_generator(X,q1,q2,y,batch_size=128,shuffle=True,maxlen=238,dim=300):
                 X_batch_2.append(qqq2)
 
                 qqq3,qqq4=calc_w2v_sim(qq1,qq2,embedder=trmodel,maxlen=maxlen,dim=dim)
-                # 
+                
                 X_batch_3.append(qqq1)
                 X_batch_4.append(qqq2)
-                # print qq1.shape
+
 
             X_batch_1 = np.array(X_batch_1)
             X_batch_2 = np.array(X_batch_2)
@@ -109,13 +102,9 @@ def batch_generator(X,q1,q2,y,batch_size=128,shuffle=True,maxlen=238,dim=300):
             X_batch_3 = np.array(X_batch_3)
             X_batch_4 = np.array(X_batch_4)
 
-            # X_batch_3 = X_batch_2-X_batch_1
-            
-            # X_batch = [X_batch_0,X_batch_1,X_batch_2,X_batch_3]
             X_batch = [X_batch_1,X_batch_2,X_batch_3,X_batch_4]
 
             y_batch = y[batch_ids]
-            # y_batch = [y_batch,y_batch]
             
             yield X_batch,y_batch
 
@@ -126,22 +115,6 @@ def calc_w2v_sim(q1,q2,embedder=w2vmodel,idf_dict=idf_dict,maxlen=50,dim=300):
     '''
     a2 = [x for x in q1.lower().split() if x in embedder]
     b2 = [x for x in q2.lower().split() if x in embedder]
-    # tmp = []
-    # for u in q1.lower().split():
-    #     try:
-    #         tmp.append(unicode(u))
-    #     except:
-    #         tmp.append("unicode_%s"%hash(u))
-    # q1 = ' '.join(tmp)
-
-
-    # tmp = []
-    # for u in q2.lower().split():
-    #     try:
-    #         tmp.append(unicode(u))
-    #     except:
-    #         tmp.append("unicode_%s"%hash(u))
-    # q2 = ' '.join(tmp)
 
     vectorAs = []
     for w in a2:
@@ -162,14 +135,11 @@ def calc_w2v_sim(q1,q2,embedder=w2vmodel,idf_dict=idf_dict,maxlen=50,dim=300):
         coef=1.0
         vectorB = embedder[w]
         vectorBs.append(vectorB)
-    # vectorAs =[s.vector*idf_dict.get(s.text,idf_dict['default_idf']) for s in nlp(unicode(q1))]
-    # vectorBs =[s.vector*idf_dict.get(s.text,idf_dict['default_idf']) for s in nlp(unicode(q2))]
-    # vectorAs =[s.vector for s in nlp(unicode(q1))]
-    # vectorBs =[s.vector for s in nlp(unicode(q2))]
+
     vectorAs = my_padding(vectorAs,maxlen=maxlen,dim=dim)
     vectorBs = my_padding(vectorBs,maxlen=maxlen,dim=dim)
     vectorAs = np.vstack(vectorAs)
-    # print(vectorAs)
+
     vectorBs = np.vstack(vectorBs)
     return vectorAs,vectorBs
  
@@ -195,10 +165,9 @@ def test_batch_generator(X,q1,q2,y,batch_size=128,shuffle=True,maxlen=238,dim=30
             X_batch_2.append(qqq2)
 
             qqq3,qqq4=calc_w2v_sim(qq1,qq2,embedder=trmodel,maxlen=maxlen,dim=dim)
-            # 
+            
             X_batch_3.append(qqq1)
             X_batch_4.append(qqq2)
-            # print qq1.shape
 
         X_batch_1 = np.array(X_batch_1)
         X_batch_2 = np.array(X_batch_2)
@@ -206,13 +175,9 @@ def test_batch_generator(X,q1,q2,y,batch_size=128,shuffle=True,maxlen=238,dim=30
         X_batch_3 = np.array(X_batch_3)
         X_batch_4 = np.array(X_batch_4)
 
-        # X_batch_3 = X_batch_2-X_batch_1
-        
-        # X_batch = [X_batch_0,X_batch_1,X_batch_2,X_batch_3]
         X_batch = [X_batch_1,X_batch_2,X_batch_3,X_batch_4]
 
         y_batch = y[batch_ids]
-        # y_batch = [y_batch,y_batch]
         
         yield X_batch,y_batch
 
@@ -242,8 +207,7 @@ def identity_loss(y_true, y_pred):
 
 def build_model(dim0,maxlen=238,n=1e5,dim=200,hidden=512):
     inputs = []
-    # inputs_0 = Input(shape=(dim0,),name='input_0')
-    # inputs.append(inputs_0)
+
     inputs_q1 = Input(shape=(maxlen,dim),name='input_q1')
     inputs.append(inputs_q1)
     inputs_q2 = Input(shape=(maxlen,dim),name='input_q2')
@@ -255,17 +219,7 @@ def build_model(dim0,maxlen=238,n=1e5,dim=200,hidden=512):
     inputs.append(inputs_q4)
 
 
-    # inputs_q3 = Input(shape=(maxlen,dim),name='input_q3')
-    # inputs.append(inputs_q3)
 
-    conv1 = Convolution1D(64, 3, border_mode='same',activation='relu')
-    pool1 = MaxPooling1D(pool_length=2)
-
-    conv2 = Convolution1D(128, 3, border_mode='same',activation='relu')
-    pool2 = MaxPooling1D(pool_length=2)
-
-    # conv3 = Convolution1D(256, 3, border_mode='same',activation='relu')
-    # pool3 = MaxPooling1D(pool_length=2)
 
     emb_q1 = inputs_q1
     emb_q2 = inputs_q2
@@ -273,46 +227,13 @@ def build_model(dim0,maxlen=238,n=1e5,dim=200,hidden=512):
 
     emb_q3 = inputs_q3
     emb_q4 = inputs_q4
-    # emb_q3 = inputs_q3
-
-
-    # conv1_q1 = conv1(emb_q1)
-    # conv1_q2 = conv1(emb_q2)
-    # pool1_q1 = pool1(conv1_q1)
-    # pool1_q2 = pool1(conv1_q2)
-
-    # conv2_q1 = conv2(pool1_q1)
-    # conv2_q2 = conv2(pool1_q2)
-    # pool2_q1 = pool2(conv2_q1)
-    # pool2_q2 = pool2(conv2_q2)
-
-    # conv3_q1 = conv3(pool2_q1)
-    # conv3_q2 = conv3(pool2_q2)
-    # pool3_q1 = pool3(conv3_q1)
-    # pool3_q2 = pool3(conv3_q2)
-
-    # flatten = Flatten()
-    # flatten_q1 = flatten(pool3_q1)
-    # flatten_q2 = flatten(pool3_q2)
-    
-    # latent = Dense(128,activation='sigmoid')
-    # latent_q1 = latent(flatten_q1)
-    # latent_q2 = latent(flatten_q2)
-    
-    # latent = Dense(128,activation='sigmoid')
-    # latent_q1 = latent(flatten_q1)
-    # latent_q2 = latent(flatten_q2)
+   
     
 
 
     lstm1 = LSTM(256,dropout=0.1, recurrent_dropout=0.05)
     lstm2 = LSTM(256,dropout=0.1, recurrent_dropout=0.05)
-    # lstm3 = LSTM(128)
-    
-    # emb_q1 = shared_emb1(inputs_q1)
-    # emb_q1 = Dropout(0.2)(emb_q1)
-    # emb_q2 = shared_emb1(inputs_q2)
-    # emb_q2 = Dropout(0.2)(emb_q2)
+
     
     latent_q1 = lstm1(emb_q1)
     latent_q2 = lstm1(emb_q2)
@@ -320,17 +241,14 @@ def build_model(dim0,maxlen=238,n=1e5,dim=200,hidden=512):
 
     latent_q3 = lstm2(emb_q3)
     latent_q4 = lstm2(emb_q4)
-    # latent_q3 = lstm3(emb_q3)
-    # latent = Dense(128,activation='tanh')
-    # latent_q1 = latent(flatten_q1)
-    # latent_q2 = latent(flatten_q2)
+
     
     outputs_contrastive_loss = Lambda(euclidean_distance,output_shape=(1,),name='contrastive_loss')([
             latent_q1,latent_q2
             ])
 
     merge_layer = merge([latent_q1,latent_q2,latent_q3,latent_q4],mode='concat')
-    # merge_layer = BatchNormalization()(merge_layer)
+
 
     fc1 = Dense(hidden)(merge_layer)
     fc1 = PReLU()(fc1)
@@ -346,7 +264,6 @@ def build_model(dim0,maxlen=238,n=1e5,dim=200,hidden=512):
     
     outputs = [output_logloss,]
     
-    # outputs = [output_logloss,outputs_contrastive_loss,]
 
     model = Model(input=inputs, output=outputs)
     
@@ -396,94 +313,11 @@ X_q2 = train['question2'].values
 X_t_q1 = test['question1'].values
 X_t_q2 = test['question2'].values
 
-feats= ['question1_unigram','question2_unigram','question1_bigram','question2_bigram','question1_distinct_unigram','question2_distinct_unigram','question1_distinct_bigram','question2_distinct_bigram','question1_unigram_question2_unigram','question1_distinct_unigram_question2_distinct_unigram']
-X = []
-for f in feats:
-    X.append(pd.read_pickle(path+'train_%s_tfidf_nmf.pkl'%f))
-    # X.append(pd.read_pickle(path+'train_%s_tfidf_svd.pkl'%f))
-# X.append(np.loadtxt(path+'train_spacy_diff_pretrained.txt'))
-
-feats2= [
-'question1',
-'question2',
-'question1_porter',
-'question2_porter',
-]
-for f in feats2:
-    X.append(pd.read_pickle(path+'train_%s_nmf.pkl'%f))
-    # X.append(pd.read_pickle(path+'train_%s_svd.pkl'%f))
-
-X = np.hstack(X)#.tocsr()
 
 
-# train_unigram_features = pd.read_csv(path+'train_unigram_features.csv').values
-# train_bigram_features = pd.read_csv(path+'train_bigram_features.csv').values
-# train_distinct_unigram_features = pd.read_csv(path+'train_distinct_unigram_features.csv').values
-# train_porter_stop_features = pd.read_csv(path+'train_porter_stop_features.csv').values
-
-# train_position_index = pd.read_csv(path+'train_position_index.csv').values
-# train_position_normalized_index = pd.read_csv(path+'train_position_normalized_index.csv').values
-# train_idf_stats_features = pd.read_csv(path+'train_idf_stats_features.csv').values
-
-
-
-# train_len =pd.read_pickle(path+'train_len.pkl')
-# train_selftrained_w2v_sim_dist =pd.read_pickle(path+'train_selftrained_w2v_sim_dist.pkl')
-# train_pretrained_w2v_sim_dist =pd.read_pickle(path+'train_pretrained_w2v_sim_dist.pkl')
-# # train_selftrained_glove_sim_dist =pd.read_pickle(path+'train_selftrained_glove_sim_dist.pkl')
-# train_gensim_tfidf_sim = pd.read_pickle(path+'train_gensim_tfidf_sim.pkl')[:].reshape(-1,1)
-
-# train_hashed_idf = pd.read_csv(path+'train_hashed_idf.csv')
-# train_hashed_idf['hash_count_same'] = (train_hashed_idf['question1_hash_count']==train_hashed_idf['question2_hash_count']).astype(int)
-# train_hashed_idf['dup_max']=train_hashed_idf.apply(lambda x:max(x['question1_hash_count'],x['question2_hash_count']),axis=1)
-# train_hashed_idf['dup_min']=train_hashed_idf.apply(lambda x:min(x['question1_hash_count'],x['question2_hash_count']),axis=1)
-# train_hashed_idf['dup_dis']=train_hashed_idf['dup_max']-train_hashed_idf['dup_min']
-# weight = train_hashed_idf['dup_max'].values
-# train_hashed_idf = train_hashed_idf.values
-
-# # train_distinct_word_stats = pd.read_csv(path+'train_distinct_word_stats.csv').values
-# # train_distinct_word_stats_pretrained = pd.read_csv(path+'train_distinct_word_stats_pretrained.csv').values
-
-# # train_spacy_sim_pretrained = pd.read_csv(path+'train_spacy_sim_pretrained.csv')[['spacy_sim']].values
-# # print weight.shape
-# # train_pattern = pd.read_pickle(path+'train.pattern.pkl').reshape((X.shape[0],3))
-# # print train_pattern.shape
-# # train_tfidf_sim = pd.read_pickle(path+'train_tfidf_sim.pkl').reshape(-1,1)
-
-# train_basic_features = np.hstack([
-#     train_unigram_features,
-#     train_bigram_features,
-#     train_porter_stop_features,
-#     train_distinct_unigram_features,
-#     train_position_index,
-#     train_position_normalized_index,
-#     train_idf_stats_features,
-#     train_len,
-#     train_selftrained_w2v_sim_dist,
-#     train_pretrained_w2v_sim_dist,
-#     # train_selftrained_glove_sim_dist,
-#     train_gensim_tfidf_sim,
-#     train_hashed_idf,
-#     # train_distinct_word_stats,
-#     # train_distinct_word_stats_pretrained,
-#     # train_spacy_sim_pretrained,
-#     # train_pattern,
-#     ])
-
-# X = np.hstack([X,train_basic_features])#.tocsr()
-scaler = MinMaxScaler()
-scaler.fit(X)
-X = scaler.transform(X)
-dim0=X.shape[1]
-
-
-# X_q1 = np.array(X_q1)
-# X_t_q1 = np.array(X_t_q1)
-# X_q2 = np.array(X_q2)
-# X_t_q2 = np.array(X_t_q2)
 
 y = pd.read_csv(path+"train.csv")['is_duplicate'].values
-# y[y==0]=-1
+
 
 X_mf = np.zeros(X_q1.shape[0])
 X_t_mf = np.zeros(X_t_q1.shape[0])
@@ -511,17 +345,14 @@ for ind_tr, ind_te in skf:
     te_gen = batch_generator(X_test,X_q1_test,X_q2_test,y_test,batch_size=batch_size,shuffle=False,maxlen=maxlen,dim=300)
     model.fit_generator(
             tr_gen, 
-            # samples_per_epoch=X_q1_train.shape[0], 
             steps_per_epoch = int(X_q1_train.shape[0]/batch_size),
             nb_epoch=6, 
             verbose=1, 
             validation_data=te_gen, 
-            # nb_val_samples=X_q1_test.shape[0], 
             validation_steps = int(X_q1_test.shape[0]/batch_size),
             max_q_size=10,
             callbacks = [model_checkpoint]
             )
-    # model.load_weights(path+model_name)
 
     y_pred = []
     test_gen = test_batch_generator(X_test,X_q1_test,X_q2_test,y_test,batch_size=batch_size*3,shuffle=False,maxlen=maxlen,dim=300)
