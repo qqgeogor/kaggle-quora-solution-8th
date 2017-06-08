@@ -5,8 +5,8 @@ pypy generate_distinct_unigram.py
 pypy generate_cooccurence_ngram.py
 pypy generate_cooccurence_distinct.py
 pypy generate_cooccurence_distinct_bigram.py
-pypy position_unigram_features.py
-pypy position_normalized_unigram_features.py
+pypy generate_position_unigram_features.py
+pypy generate_position_normalized_unigram_features.py
 pypy generate_basic_features.py
 pypy generate_basic_features_distinct.py
 pypy generate_stop_features.py
