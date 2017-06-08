@@ -1,3 +1,3 @@
-## kaggle-quora-solution-8th"
-# run model_qian features
+# kaggle-quora-solution-8th"
+## run model_qian features
 bash run.sh
