@@ -1,4 +1,4 @@
-pypy generate_stem.py
+python generate_stem.py
 pypy generate_unigram.py
 pypy generate_bigram.py
 pypy generate_distinct_unigram.py
