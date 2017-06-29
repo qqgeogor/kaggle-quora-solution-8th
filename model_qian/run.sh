@@ -19,7 +19,6 @@ pypy generate_cooccurence_qid.py
 pypy generate_basic_features_minmax.py
 pypy generate_basic_features_distinct_minmax.py
 
-pypy generate_mutual_information.py
 
 
 python generate_tfidf_ngram.py
